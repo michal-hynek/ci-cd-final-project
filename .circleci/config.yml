@@ -1,10 +1,23 @@
 version: 2.1
 
+node-image: &node-image
+  docker:
+    - image: circleci/node:13.8.0
+
+aws-cli-image: &aws-cli-image
+  docker:
+    - image: amazon/aws-cli
+
+ansible-image: &ansible-image
+  docker:
+    - image: python:3.7-alpine3.11
+
 commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
-      # Add parameter here   
+      id:
+        type: string
     steps:
       - run:
           name: Destroy environments
@@ -15,7 +28,7 @@ commands:
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
-    parameters:
+    #parameters:
       # Add parameter here     
     steps:
       - run:
@@ -34,8 +47,7 @@ commands:
             
 jobs:
   build-frontend:
-    docker:
-      - image: circleci/node:13.8.0
+    <<: *node-image
     steps:
       - checkout
       - restore_cache:
@@ -50,8 +62,7 @@ jobs:
           key: frontend-build
 
   build-backend:
-    docker:
-      - image: circleci/node:13.8.0
+    <<: *node-image
     steps:
       - checkout
       - restore_cache:
@@ -66,40 +77,43 @@ jobs:
           key: backend-build
 
   test-frontend:
-    docker:
-      # Docker image here
+    <<: *node-image
     steps:
+      - run:
+          command: exit 1
       # Checkout code from git
       # Restore from cache
       # Your job code here
                 
   test-backend:
-    docker:
-      # Docker image here
+    <<: *node-image
     steps:
+      - run:
+          command: exit 1
       # Checkout code from git
       # Restore from cache
       # Your job code here
             
   scan-frontend:
-    docker:
-      # Docker image here
+    <<: *node-image
     steps:
+      - run:
+          command: exit 1
       # Checkout code from git
       # Restore from cache
       # Your job code here
 
   scan-backend:
-    docker:
-      # Docker image here
+    <<: *node-image
     steps:
+      - run:
+          command: exit 1
       # Checkout code from git
       # Restore from cache
       # Your job code here
 
   deploy-infrastructure:
-    docker:
-      # Docker image here that supports AWS CLI
+    <<: *aws-cli-image
     steps:
       # Checkout code from git
       - run:
@@ -132,8 +146,7 @@ jobs:
       # Here's where you will add some code to rollback on failure      
 
   configure-infrastructure:
-    docker:
-      # Docker image here that supports Ansible
+    <<: *ansible-image
     steps:
       # Checkout code from git
       # Add ssh keys with fingerprint
@@ -151,8 +164,7 @@ jobs:
       # Here's where you will add some code to rollback on failure      
 
   run-migrations:
-    docker:
-      # Docker image here that supports NodeJS
+    <<: *node-image
     steps:
       # Checkout code from git
       - run:
@@ -168,8 +180,7 @@ jobs:
      # Here's where you will add some code to rollback on failure      
 
   deploy-frontend:
-    docker:
-      # Docker image here that supports AWS CLI
+    <<: *aws-cli-image
     steps:
       # Checkout code from git
       - run:
@@ -189,8 +200,7 @@ jobs:
       # Here's where you will add some code to rollback on failure      
                     
   deploy-backend:
-    docker:
-      # Docker image here that supports Ansible
+    <<: *ansible-image
     steps:
       # Checkout code from git
       # Add ssh keys with fingerprint
@@ -207,7 +217,7 @@ jobs:
 
   smoke-test:
     docker:
-      # Lightweight Docker image 
+      - image: alpine
     steps:
       # Checkout code from git
       - run:
@@ -229,8 +239,7 @@ jobs:
       # Here's where you will add some code to rollback on failure  
 
   cloudfront-update:
-    docker:
-      # Docker image here that supports AWS CLI
+    <<: *aws-cli-image
     steps:
       # Checkout code from git
       - run:
@@ -243,9 +252,9 @@ jobs:
             # your code here
       # Here's where you will add some code to rollback on failure  
 
-cleanup:
+  cleanup:
     docker:
-      # Docker image here
+      - image: alpine
     steps:
       # Checkout code from git
       - run:
