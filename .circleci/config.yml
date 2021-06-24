@@ -79,21 +79,23 @@ jobs:
   test-frontend:
     <<: *node-image
     steps:
+      - checkout
+      - restore_cache:
+          keys: [frontend-build]
       - run:
-          command: exit 1
-      # Checkout code from git
-      # Restore from cache
-      # Your job code here
+          working_directory: frontend
+          command: npm test
                 
   test-backend:
     <<: *node-image
     steps:
+      - checkout
+      - restore_cache:
+          keys: [backend-build]
       - run:
-          command: exit 1
-      # Checkout code from git
-      # Restore from cache
-      # Your job code here
-            
+          working_directory: backend
+          command: npm test
+
   scan-frontend:
     <<: *node-image
     steps:
