@@ -147,33 +147,45 @@ jobs:
             aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:Name,Values=backend-${CIRCLE_CI_WORKFLOW_ID}" \
-              --output text >> .circle/ansible/inventory.txt
+              --output text >> .circleci/ansible/inventory.txt
       - persist_to_workspace:
-          root: ~/
+          root: .
           paths:
             - .circleci/ansible/inventory.txt
       - destroy-environment:
           id: "backend-${CIRCLE_CI_WORKFLOW_ID}"
+      - destroy-environment:
+          id: "frontend-${CIRCLE_CI_WORKFLOW_ID}"
 
   configure-infrastructure:
     <<: *ansible-image
+    environment:
+      TYPEORM_CONNECTION: $TYPEORM_CONNECTION
+      TYPEORM_HOST: $TYPEORM_HOST
+      TYPEORM_USERNAME: $TYPEORM_USERNAME
+      TYPEORM_PASSWORD: $TYPEORM_PASSWORD
+      TYPEORM_DATABASE: $TYPEORM_DATABASE
+      TYPEORM_MIGRATIONS: $TYPEORM_MIGRATIONS
+      TYPEORM_ENTITIES: $TYPEORM_ENTITIES
     steps:
-      # Checkout code from git
-      # Add ssh keys with fingerprint
-      # attach workspace
+      - checkout
+      - attach_workspace:
+          at: .
+      - add_ssh_keys:
+          fingerprints: ["23:c9:71:07:b1:8e:81:ee:ae:5e:48:35:a6:9f:65:f9"]
       - run:
-          command: cat .circle/anisble/inventory.txt
+          command: cat .circleci/anisble/inventory.txt
       - run:
-          name: Install dependencies
-          command: |
-            # Your code here
-            exit 1
+          name: Install Ansible
+          command: apk add --update ansible
       - run:
           name: Configure server
           command: |
-            # Your code here
-            exit 1
-      # Here's where you will add some code to rollback on failure      
+            ansible-playbook .circleci/ansible/configure-server.yml -i .circleci/ansible/inventory.txt
+      - destroy-environment:
+          id: "backend-${CIRCLE_CI_WORKFLOW_ID}"
+      - destroy-environment:
+          id: "frontend-${CIRCLE_CI_WORKFLOW_ID}"
 
   run-migrations:
     <<: *node-image
