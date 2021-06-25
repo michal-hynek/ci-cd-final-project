@@ -153,9 +153,9 @@ jobs:
           paths:
             - .circleci/ansible/inventory.txt
       - destroy-environment:
-          id: "backend-${CIRCLE_WORKFLOW_ID}"
+          id: "udapeople-backend-${CIRCLE_WORKFLOW_ID}"
       - destroy-environment:
-          id: "frontend-${CIRCLE_WORKFLOW_ID}"
+          id: "udapeople-frontend-${CIRCLE_WORKFLOW_ID}"
 
   configure-infrastructure:
     <<: *ansible-image
