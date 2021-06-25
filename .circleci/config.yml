@@ -139,7 +139,7 @@ jobs:
               aws cloudformation deploy \
                --template-file .circleci/files/frontend.yml \
                --tags project=udapeople \
-               --stack-name "upapeople-frontend-${CIRCLE_WORKFLOW_ID}" \
+               --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID}" \
                --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"  
       - run:
           name: Add back-end ip to ansible inventory
@@ -148,6 +148,9 @@ jobs:
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID}" \
               --output text >> .circleci/ansible/inventory.txt
+      - run:
+          name: Install dependencies for persist_to_workspace
+          command: yum -y install tar gzip
       - persist_to_workspace:
           root: .
           paths:
@@ -169,6 +172,9 @@ jobs:
       TYPEORM_ENTITIES: $TYPEORM_ENTITIES
     steps:
       - checkout
+      - run:
+          name: Install dependencies for attach_workspace
+          command: yum -y install tar gzip
       - attach_workspace:
           at: .
       - add_ssh_keys:
@@ -183,9 +189,9 @@ jobs:
           command: |
             ansible-playbook .circleci/ansible/configure-server.yml -i .circleci/ansible/inventory.txt
       - destroy-environment:
-          id: "backend-${CIRCLE_WORKFLOW_ID}"
+          id: "udapeople-backend-${CIRCLE_WORKFLOW_ID}"
       - destroy-environment:
-          id: "frontend-${CIRCLE_WORKFLOW_ID}"
+          id: "udapeople-frontend-${CIRCLE_WORKFLOW_ID}"
 
   run-migrations:
     <<: *node-image
