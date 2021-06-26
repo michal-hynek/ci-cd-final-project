@@ -275,6 +275,9 @@ jobs:
       - run:
           name: Install Ansible
           command: apk add --update ansible
+      # TODO: remove this step
+      - run:
+          command: echo "54.218.81.179" >> .circleci/ansible/inventory.txt
       - run:
           name: zip dist files
           command: cd backend/dist && tar -czf ../../backend.tgz *
@@ -366,21 +369,21 @@ workflows:
       #    requires: [build-backend]
       #- scan-frontend:
       #    requires: [build-frontend]
-      - deploy-infrastructure
+      #- deploy-infrastructure
           #requires: [test-frontend, test-backend, scan-frontend, scan-backend]
           #requires: [build-frontend, build-backend]
       #    filters:
       #      branches:
       #        only: [final-project]
-      - configure-infrastructure:
-          requires: [deploy-infrastructure]
+      #- configure-infrastructure:
+      #    requires: [deploy-infrastructure]
       #- run-migrations:
       #    requires: [configure-infrastructure]
       #- deploy-frontend:
           #requires: [run-migrations]
       - deploy-backend:
       #    requires: [run-migrations]
-          requires: [configure-infrastructure]
+      #    requires: [configure-infrastructure]
       #- smoke-test:
       #    requires: [deploy-backend, deploy-frontend]
       #- cloudfront-update:
