@@ -28,7 +28,7 @@ Resources:
       InstanceType: t2.micro
       SecurityGroups:
         - Ref: InstanceSecurityGroup
-      KeyName: udacity
+      KeyName: udapeople
       ImageId: ami-03d5c68bab01f3496 # Ubuntu 20.04 in us-west-2
       Tags:
         - Key: Name
