@@ -166,14 +166,6 @@ jobs:
 
   configure-infrastructure:
     <<: *ansible-image
-    environment:
-      TYPEORM_CONNECTION: $TYPEORM_CONNECTION
-      TYPEORM_HOST: $TYPEORM_HOST
-      TYPEORM_USERNAME: $TYPEORM_USERNAME
-      TYPEORM_PASSWORD: $TYPEORM_PASSWORD
-      TYPEORM_DATABASE: $TYPEORM_DATABASE
-      TYPEORM_MIGRATIONS: $TYPEORM_MIGRATIONS
-      TYPEORM_ENTITIES: $TYPEORM_ENTITIES
     steps:
       - checkout
       - run:
@@ -209,8 +201,6 @@ jobs:
     steps:
       - checkout
       - run:
-          command: echo $TYPEORM_CONNECTION
-      - run:
           command: sudo apt-get install -y tar gzip curl
       - restore_cache:
           keys: [backend-build]
@@ -218,8 +208,7 @@ jobs:
           name: Run migrations
           working_directory: backend
           command: |
-            # npm run migrations > ./migrations-result.txt
-            npm run migrations
+            npm run migrations > ./migrations-result.txt
       - run:
           name: Send migration results to memstash
           command: |
@@ -227,8 +216,8 @@ jobs:
       - run:
           when: on_fail
           command: sudo apt-get update && sudo apt-get install -y awscli
-      #- revert-migrations:
-      #    id: "migrations-${CIRCLE_WORKFLOW_ID}"
+      - revert-migrations:
+          id: "migrations-${CIRCLE_WORKFLOW_ID}"
       #- destroy-environment:
       #    id: "udapeople-backend-${CIRCLE_WORKFLOW_ID}"
       #- destroy-environment:
