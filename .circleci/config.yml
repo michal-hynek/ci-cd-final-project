@@ -173,14 +173,6 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install awscli
-          command: |
-            apk add --update curl && \
-            apk add --update unzip && \
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
-            unzip awscliv2.zip && \
-            ./aws/install
-      - run:
           name: Install dependencies for attach_workspace
           command: apk add --update tar gzip
       - attach_workspace:
@@ -194,6 +186,15 @@ jobs:
           name: Configure server
           command: |
             ansible-playbook .circleci/ansible/configure-server.yml -i .circleci/ansible/inventory.txt
+      - run:
+          name: Install awscli
+          when: on_fail
+          command: |
+            apk add --update curl && \
+            apk add --update unzip && \
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
+            unzip awscliv2.zip && \
+            ./aws/install
       - destroy-environment:
           id: "udapeople-backend-${CIRCLE_WORKFLOW_ID}"
       - destroy-environment:
