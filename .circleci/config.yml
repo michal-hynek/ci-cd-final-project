@@ -21,6 +21,9 @@ parameters:
     type: string
     default: 2c582b39-ba70-4636-bdbe-9163505f7f73
 
+orbs:
+  aws-s3: circleci/aws-s3@2.0.0
+
 commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
@@ -44,7 +47,7 @@ commands:
           name: Revert migrations
           when: on_fail
           command: |
-            SUCCESS=$(curl -H "token: << pipeline.parameters.memstash_token >>" --request GET https://api.memstash.io/values/migration_<< parameters.id >> | grep "has been executed successfully" | wc -l)
+            SUCCESS=$(curl -H "token: << pipeline.parameters.memstash_token >>" --request GET https://api.memstash.io/values/migration_<< parameters.id >> | grep -c "has been executed successfully")
             if(( $SUCCESS==1 ));
             then
               cd ./backend
@@ -235,14 +238,19 @@ jobs:
       - restore_cache:
           keys: [frontend-build]
       - run:
-          command: sudo apt-get update && sudo apt-get install -y awscli curl grep
+          command: sudo apt-get update && sudo apt-get install -y grep
       - run:
           name: Deploy frontend objects
           command: |
             export API_URL="http://`cat .circleci/ansible/ec2-ip.txt`:3030" && \
             cd ./frontend && \
-            npm run build && \
-            aws s3 cp ./dist s3://udapeople-${CIRCLE_WORKFLOW_ID}/ --recursive
+            npm run build
+      - aws-s3/copy:
+          from: ./frontend/dist
+          to: "s3://udapeople-${CIRCLE_WORKFLOW_ID}"
+      - run:
+          when: on_fail
+          command: sudo apt-get update && sudo apt-get install -y awscli curl
       - revert-migrations:
           id: "migrations-${CIRCLE_WORKFLOW_ID}"
       - destroy-environment:
@@ -352,18 +360,18 @@ workflows:
       #    requires: [build-backend]
       #- scan-frontend:
       #    requires: [build-frontend]
-      - deploy-infrastructure
+      #- deploy-infrastructure
           #requires: [test-frontend, test-backend, scan-frontend, scan-backend]
           #requires: [build-frontend, build-backend]
       #    filters:
       #      branches:
       #        only: [final-project]
-      - configure-infrastructure:
-          requires: [deploy-infrastructure]
-      - run-migrations:
-          requires: [configure-infrastructure]
-      - deploy-frontend:
-          requires: [run-migrations]
+      #- configure-infrastructure:
+      #    requires: [deploy-infrastructure]
+      #- run-migrations:
+      #    requires: [configure-infrastructure]
+      - deploy-frontend
+          #requires: [run-migrations]
       - deploy-backend:
           requires: [run-migrations]
       - smoke-test:
