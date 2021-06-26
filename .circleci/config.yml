@@ -81,7 +81,9 @@ jobs:
           working_directory: backend
           command: npm install && npm run build
       - save_cache:
-          paths: [backend/node_modules]
+          paths:
+            - backend/node_modules
+            - backend/dist
           key: backend-build
 
   test-frontend:
