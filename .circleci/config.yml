@@ -174,7 +174,7 @@ jobs:
       - checkout
       - run:
           name: Install awscli
-          command: pip install awscliv2 --upgrade
+          command: pip install awscliv2 --upgrade && ln -s $(which awscliv2) /usr/bin/aws
       - run:
           name: Install dependencies for attach_workspace
           command: apk add --update tar gzip
@@ -183,7 +183,7 @@ jobs:
       - add_ssh_keys:
           fingerprints: ["23:c9:71:07:b1:8e:81:ee:ae:5e:48:35:a6:9f:65:f9"]
       - run:
-          command: cat .circleci/anisble/inventory.txt
+          command: cat .circleci/ansible/inventory.txt
       - run:
           name: Install Ansible
           command: apk add --update ansible
