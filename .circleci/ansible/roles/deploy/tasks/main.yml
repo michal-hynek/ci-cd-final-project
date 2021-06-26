@@ -1,4 +1,12 @@
 ---
+- name: save env vars
+  shell: |
+    echo $TYPEORM_CONNECTION > env_vars.txt && \
+    echo $TYPEORM_HOST >> env_vars.txt && \
+    echo $TYPEORM_PORT >> env_vars.txt
+  args:
+    chdir: /home/ubuntu/udapeople
+
 - name: copy backend dist
   copy:
     src: ../../backend.tgz
