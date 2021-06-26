@@ -183,8 +183,6 @@ jobs:
       - add_ssh_keys:
           fingerprints: ["23:c9:71:07:b1:8e:81:ee:ae:5e:48:35:a6:9f:65:f9"]
       - run:
-          command: cat .circleci/ansible/inventory.txt
-      - run:
           name: Install Ansible
           command: apk add --update ansible
       - run:
