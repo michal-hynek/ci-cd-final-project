@@ -1,0 +1,27 @@
+---
+- name: copy backend dist
+  copy:
+    src: ../../backend.tgz
+    dest: /home/ubuntu/udapeople
+
+- name: copy package.json
+  copy:
+    src: ../../backend/package.json
+    dest: /home/ubuntu/udapeople
+
+- name: install app
+  shell: npm install --production
+  args:
+    chdir: /home/ubuntu/udapeople
+
+- name: unzip dist files
+  shell: |
+    tar -xzvf backend.tgz
+  args:
+    chdir: /home/ubuntu/udapeople
+
+- name: start the app
+  shell: |
+    pm2 start main.js --name udapeople
+  args:
+    chdir: /home/ubuntu/udapeople

@@ -28,3 +28,8 @@
     global: yes
     production: yes
     state: present
+
+- name: start pm2 as service
+  become: yes
+  shell: |
+    env PATH=$PATH:/usr/local/bin pm2 startup -u ubuntu
