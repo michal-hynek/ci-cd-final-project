@@ -216,7 +216,7 @@ jobs:
             curl -H "Content-Type: text/plain" -H "token: << pipeline.parameters.memstash_token >>" --request PUT --data `cat ./backend/migrations-result.txt` https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
       - run:
           when: on_fail
-          command: sudo apt-get update && sudo apt-get install -y awscli
+          command: sudo apt-get update && sudo apt-get install -y awscli curl
       - revert-migrations:
           id: "migrations-${CIRCLE_WORKFLOW_ID}"
       - destroy-environment:
@@ -239,9 +239,12 @@ jobs:
           name: Deploy frontend objects
           command: |
             export API_URL="http://`cat .circleci/ansible/ec2-ip.txt`:3030" && \
-            echo $API_URL && \
+            cd ./frontend && \
             npm run build && \
             aws s3 cp ./frontend/dist s3://udapeople-${CIRCLE_WORKFLOW_ID}/ --recursive
+      - run:
+          when: on_fail
+          command: sudo apt-get update && sudo apt-get install -y awscli curl
       - revert-migrations:
           id: "migrations-${CIRCLE_WORKFLOW_ID}"
       - destroy-environment:
@@ -252,9 +255,14 @@ jobs:
   deploy-backend:
     <<: *ansible-image
     steps:
-      # Checkout code from git
-      # Add ssh keys with fingerprint
-      # attach workspace
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ["23:c9:71:07:b1:8e:81:ee:ae:5e:48:35:a6:9f:65:f9"]
+      - run:
+          name: Install dependencies for attach_workspace
+          command: apk add --update tar gzip
+      - attach_workspace:
+          at: .
       - run:
           name: Install dependencies
           command: |
@@ -263,7 +271,12 @@ jobs:
           name: Deploy backend
           command: |
             # your code here
-      # Here's where you will add some code to rollback on failure  
+      - revert-migrations:
+          id: "migrations-${CIRCLE_WORKFLOW_ID}"
+      - destroy-environment:
+          id: "udapeople-backend-${CIRCLE_WORKFLOW_ID}"
+      - destroy-environment:
+          id: "udapeople-frontend-${CIRCLE_WORKFLOW_ID}"
 
   smoke-test:
     <<: *lightweight-image
