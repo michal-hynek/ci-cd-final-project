@@ -233,7 +233,7 @@ jobs:
       - attach_workspace:
           at: .
       - restore_cache:
-          keys: [backend-frontend]
+          keys: [frontend-build]
       - run:
           name: Deploy frontend objects
           command: |
@@ -243,7 +243,7 @@ jobs:
             aws s3 cp ./frontend/dist s3://udapeople-${CIRCLE_WORKFLOW_ID}/ --recursive
       - run:
           when: on_fail
-          command: sudo apt-get update && sudo apt-get install -y awscli curl grep wc
+          command: sudo apt-get update && sudo apt-get install -y awscli curl grep
       - revert-migrations:
           id: "migrations-${CIRCLE_WORKFLOW_ID}"
       - destroy-environment:
@@ -270,6 +270,15 @@ jobs:
           name: Deploy backend
           command: |
             # your code here
+      - run:
+          name: Install awscli
+          when: on_fail
+          command: |
+            apk add --update curl && \
+            apk add --update unzip && \
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
+            unzip awscliv2.zip && \
+            ./aws/install
       - revert-migrations:
           id: "migrations-${CIRCLE_WORKFLOW_ID}"
       - destroy-environment:
