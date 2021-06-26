@@ -216,7 +216,7 @@ jobs:
             curl -H "Content-Type: text/plain" -H "token: << pipeline.parameters.memstash_token >>" --request PUT --data `cat ./backend/migrations-result.txt` https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
       - run:
           when: on_fail
-          command: sudo apt-get update && sudo apt-get install -y awscli curl
+          command: sudo apt-get update && sudo apt-get install -y awscli curl grep
       - revert-migrations:
           id: "migrations-${CIRCLE_WORKFLOW_ID}"
       - destroy-environment:
@@ -235,15 +235,14 @@ jobs:
       - restore_cache:
           keys: [frontend-build]
       - run:
+          command: sudo apt-get update && sudo apt-get install -y awscli curl grep
+      - run:
           name: Deploy frontend objects
           command: |
             export API_URL="http://`cat .circleci/ansible/ec2-ip.txt`:3030" && \
             cd ./frontend && \
             npm run build && \
             aws s3 cp ./frontend/dist s3://udapeople-${CIRCLE_WORKFLOW_ID}/ --recursive
-      - run:
-          when: on_fail
-          command: sudo apt-get update && sudo apt-get install -y awscli curl grep
       - revert-migrations:
           id: "migrations-${CIRCLE_WORKFLOW_ID}"
       - destroy-environment:
