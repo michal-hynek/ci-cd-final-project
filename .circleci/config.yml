@@ -224,7 +224,8 @@ jobs:
           name: Run migrations
           working_directory: backend
           command: |
-            npm run migrations > ./migrations-result.txt
+            # npm run migrations > ./migrations-result.txt
+            npm run migrations
       - run:
           name: Send migration results to memstash
           command: |
