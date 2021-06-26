@@ -248,7 +248,8 @@ jobs:
       - aws-s3/copy:
           arguments: "--recursive"
           from: ./frontend/dist
-          to: "s3://udapeople-${CIRCLE_WORKFLOW_ID}"
+          #to: "s3://udapeople-${CIRCLE_WORKFLOW_ID}"
+          to: "s3://upapeople-b18c070f-7578-4330-b80e-c5fdb65f611c"
       - run:
           when: on_fail
           command: sudo apt-get update && sudo apt-get install -y awscli curl
