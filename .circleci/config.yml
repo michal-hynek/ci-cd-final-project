@@ -240,12 +240,13 @@ jobs:
       - run:
           command: sudo apt-get update && sudo apt-get install -y grep
       - run:
-          name: Deploy frontend objects
+          name: Build frontend with baked-in API_URL
           command: |
             export API_URL="http://`cat .circleci/ansible/ec2-ip.txt`:3030" && \
             cd ./frontend && \
             npm run build
       - aws-s3/copy:
+          arguments: "--recursive"
           from: ./frontend/dist
           to: "s3://udapeople-${CIRCLE_WORKFLOW_ID}"
       - run:
