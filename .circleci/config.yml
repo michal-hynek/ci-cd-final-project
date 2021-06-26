@@ -221,7 +221,7 @@ jobs:
       # TODO revert migrations on failure
       - run:
           when: on_fail
-          command: sudo apt-get install -y awscli
+          command: sudo apt-get update && apt-get install -y awscli
       - destroy-environment:
           id: "udapeople-backend-${CIRCLE_WORKFLOW_ID}"
       - destroy-environment:
