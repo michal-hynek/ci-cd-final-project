@@ -25,17 +25,16 @@ orbs:
   aws-s3: circleci/aws-s3@2.0.0
 
 commands:
-  destroy-environment:
+  destroy-environments:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
-    parameters:
-      id:
-        type: string
     steps:
       - run:
           name: Destroy environments
           when: on_fail
           command: |
-            aws cloudformation delete-stack --stack-name << parameters.id >>
+            aws cloudformation delete-stack --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID}
+            aws s3 rm s3://udapeople-${CIRCLE_WORKFLOW_ID}/ --recursive
+            aws cloudformation delete-stack --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID}
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -171,10 +170,7 @@ jobs:
           paths:
             - .circleci/ansible/inventory.txt
             - .circleci/ansible/ec2-ip.txt
-      - destroy-environment:
-          id: "udapeople-backend-${CIRCLE_WORKFLOW_ID}"
-      - destroy-environment:
-          id: "udapeople-frontend-${CIRCLE_WORKFLOW_ID}"
+      - destroy-environments
 
   configure-infrastructure:
     <<: *ansible-image
@@ -203,10 +199,7 @@ jobs:
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
             unzip awscliv2.zip && \
             ./aws/install
-      - destroy-environment:
-          id: "udapeople-backend-${CIRCLE_WORKFLOW_ID}"
-      - destroy-environment:
-          id: "udapeople-frontend-${CIRCLE_WORKFLOW_ID}"
+      - destroy-environments
 
   run-migrations:
     <<: *node-image
@@ -231,10 +224,7 @@ jobs:
           command: sudo apt-get update && sudo apt-get install -y awscli curl grep
       - revert-migrations:
           id: "migrations-${CIRCLE_WORKFLOW_ID}"
-      - destroy-environment:
-          id: "udapeople-backend-${CIRCLE_WORKFLOW_ID}"
-      - destroy-environment:
-          id: "udapeople-frontend-${CIRCLE_WORKFLOW_ID}"
+      - destroy-environments
 
   deploy-frontend:
     <<: *node-image
@@ -264,10 +254,7 @@ jobs:
           command: sudo apt-get update && sudo apt-get install -y awscli curl
       - revert-migrations:
           id: "migrations-${CIRCLE_WORKFLOW_ID}"
-      - destroy-environment:
-          id: "udapeople-backend-${CIRCLE_WORKFLOW_ID}"
-      - destroy-environment:
-          id: "udapeople-frontend-${CIRCLE_WORKFLOW_ID}"
+      - destroy-environments
                     
   deploy-backend:
     <<: *ansible-image
@@ -305,32 +292,49 @@ jobs:
             ./aws/install
       - revert-migrations:
           id: "migrations-${CIRCLE_WORKFLOW_ID}"
-      - destroy-environment:
-          id: "udapeople-backend-${CIRCLE_WORKFLOW_ID}"
-      - destroy-environment:
-          id: "udapeople-frontend-${CIRCLE_WORKFLOW_ID}"
+      - destroy-environments
 
   smoke-test:
-    <<: *lightweight-image
+    docker:
+      - image: python:3.7-alpine3.11
     steps:
-      # Checkout code from git
+      - checkout
       - run:
           name: Install dependencies
           command: |
-            # your code here
-      - run:
-          name: Get backend url
-          command: |
-            # your code here
+            apk add curl
+            apk add tar
+            apk add grep
+            apk add gzip
+            apk add ansible
+            pip3 install awscli
+      - attach_workspace:
+          at: .
       - run:
           name: Backend smoke test.
           command: |
-            # your code here
+            export API_URL="http://`cat .circleci/ansible/ec2-ip.txt`:3031"
+            curl -v "${API_URL}"
+            if curl -s "${API_URL}" | grep ok
+            then
+              return 0
+            else
+              return 1
+            fi
       - run:
           name: Frontend smoke test.
           command: |
-            # your code here
-      # Here's where you will add some code to rollback on failure  
+            FRONTEND_URL="http://udapeople-${CIRCLE_WORKFLOW_ID}.s3-website.us-west-2.amazonaws.com/"
+            curl -v "${FRONTEND_URL}"
+            if curl -s ${FRONTEND_URL} | grep "Welcome"
+            then
+              return 0
+            else
+              return 1
+            fi
+      - revert-migrations:
+          id: "migrations-${CIRCLE_WORKFLOW_ID}"
+      - destroy-environments
 
   cloudfront-update:
     <<: *aws-cli-image
