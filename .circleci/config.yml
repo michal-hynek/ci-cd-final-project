@@ -208,17 +208,11 @@ jobs:
           name: Run migrations
           working_directory: backend
           command: |
-            npm run migrations > migrations-result.txt && cat migrations-result.txt
-      - persist_to_workspace:
-          root: .
-          paths:
-            - migrations-result.txt
-      - run:
-          command: cat migrations-result.txt
+            npm run migrations > migrations-result.txt
       - run:
           name: Send migration results to memstash
           command: |
-            curl -H "Content-Type: text/plain" -H "token: << pipeline.parameters.memstash_token >>" --request PUT --data `cat migrations-result.txt` https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
+            curl -H "Content-Type: text/plain" -H "token: << pipeline.parameters.memstash_token >>" --request PUT --data `cat ./backend/migrations-result.txt` https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
       - run:
           when: on_fail
           command: sudo apt-get update && sudo apt-get install -y awscli
