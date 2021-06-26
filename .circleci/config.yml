@@ -280,7 +280,7 @@ jobs:
           command: echo "54.218.81.179" >> .circleci/ansible/inventory.txt
       - run:
           name: zip dist files
-          command: cd backend/dist && tar -czf ../../backend.tgz *
+          command: ls backend && cd backend/dist && tar -czf ../../backend.tgz *
       - run:
           name: Deploy backend
           command: |
@@ -295,12 +295,12 @@ jobs:
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
             unzip awscliv2.zip && \
             ./aws/install
-      - revert-migrations:
-          id: "migrations-${CIRCLE_WORKFLOW_ID}"
-      - destroy-environment:
-          id: "udapeople-backend-${CIRCLE_WORKFLOW_ID}"
-      - destroy-environment:
-          id: "udapeople-frontend-${CIRCLE_WORKFLOW_ID}"
+      #- revert-migrations:
+      #    id: "migrations-${CIRCLE_WORKFLOW_ID}"
+      #- destroy-environment:
+      #    id: "udapeople-backend-${CIRCLE_WORKFLOW_ID}"
+      #- destroy-environment:
+      #    id: "udapeople-frontend-${CIRCLE_WORKFLOW_ID}"
 
   smoke-test:
     <<: *lightweight-image
