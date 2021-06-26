@@ -173,8 +173,11 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Install awscli
+          command: pip install awscliv2 --upgrade
+      - run:
           name: Install dependencies for attach_workspace
-          command: yum -y install tar gzip
+          command: apk add --update tar gzip
       - attach_workspace:
           at: .
       - add_ssh_keys:
