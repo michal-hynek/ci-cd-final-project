@@ -225,30 +225,29 @@ jobs:
           id: "udapeople-frontend-${CIRCLE_WORKFLOW_ID}"
 
   deploy-frontend:
-    <<: *aws-cli-image
+    <<: *node-image
     steps:
       - checkout
       - run:
-          command: yum install tar gzip -y
+          command: sudo apt-get install -y tar gzip
       - attach_workspace:
           at: .
-      #- run:
-      #    name: Install dependencies
-      #    command: |
-      #      # your code here
       - run:
-          name: Get backend url
-          command: |
-            cat .circleci/ansible/ec2-ip.txt
-            exit 1
-            # your code here
-            export API_URL="http://${BACKEND_IP}:3030"
-            echo "${API_URL}"
+          name: Install dependencies
+          command: npm install
       - run:
           name: Deploy frontend objects
           command: |
-            # your code here
-      # Here's where you will add some code to rollback on failure      
+            export API_URL="http://`cat .circleci/ansible/ec2-ip.txt`:3030" && \
+            echo $API_URL && \
+            npm run build && \
+            aws s3 cp ./frontend/dist s3://udapeople-${CIRCLE_WORKFLOW_ID}/ --recursive
+      - revert-migrations:
+          id: "migrations-${CIRCLE_WORKFLOW_ID}"
+      - destroy-environment:
+          id: "udapeople-backend-${CIRCLE_WORKFLOW_ID}"
+      - destroy-environment:
+          id: "udapeople-frontend-${CIRCLE_WORKFLOW_ID}"
                     
   deploy-backend:
     <<: *ansible-image
