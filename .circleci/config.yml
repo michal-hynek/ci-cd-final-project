@@ -61,21 +61,23 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [frontend-build]
+          keys:
+            - frontend-build-{{ checksum "frontend/package-lock.json" }}
       - run:
           name: Build front-end
           working_directory: frontend
           command: npm install && npm run build
       - save_cache:
           paths: [frontend/node_modules]
-          key: frontend-build
+          key: frontend-build-{{ checksum "frontend/package-lock.json" }}
 
   build-backend:
     <<: *node-image
     steps:
       - checkout
       - restore_cache:
-          keys: [backend-build]
+          keys:
+            - backend-build-{{ checksum "backend/package-lock.json" }}
       - run:
           name: Back-end build
           working_directory: backend
@@ -84,14 +86,15 @@ jobs:
           paths:
             - backend/node_modules
             - backend/dist
-          key: backend-build
+          key: backend-build-{{ checksum "backend/package-lock.json" }}
 
   test-frontend:
     <<: *node-image
     steps:
       - checkout
       - restore_cache:
-          keys: [frontend-build]
+          keys:
+            - frontend-build-{{ checksum "frontend/package-lock.json" }}
       - run:
           name: Test frontend
           working_directory: frontend
@@ -102,7 +105,8 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [backend-build]
+          keys:
+            - backend-build-{{ checksum "backend/package-lock.json" }}
       - run:
           name: Test backend
           working_directory: backend
@@ -113,7 +117,8 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [frontend-build]
+          keys:
+            - frontend-build-{{ checksum "frontend/package-lock.json" }}
       - run:
           name: Scan frontend dependencies
           working_directory: frontend
@@ -124,7 +129,8 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [backend-build]
+          keys:
+            - backend-build-{{ checksum "backend/package-lock.json" }}
       - run:
           name: Scan backend dependencies
           working_directory: backend
@@ -209,7 +215,8 @@ jobs:
       - run:
           command: sudo apt-get install -y tar gzip curl
       - restore_cache:
-          keys: [backend-build]
+          keys:
+            - backend-build-{{ checksum "backend/package-lock.json" }}
       - run:
           name: Run migrations
           working_directory: backend
@@ -238,7 +245,8 @@ jobs:
       - attach_workspace:
           at: .
       - restore_cache:
-          keys: [frontend-build]
+          keys:
+            - frontend-build-{{ checksum "frontend/package-lock.json" }}
       - run:
           command: sudo apt-get update && sudo apt-get install -y grep
       - run:
@@ -273,7 +281,8 @@ jobs:
       - attach_workspace:
           at: .
       - restore_cache:
-          keys: [backend-build]
+          keys:
+            - backend-build-{{ checksum "backend/package-lock.json" }}
       - run:
           name: Install Ansible
           command: apk add --update ansible
