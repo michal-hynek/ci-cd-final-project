@@ -23,8 +23,5 @@
       wait_for_connection:
         timeout: 6000
 
-    - name: "install python for Ansible."
-      raw: apt-get install python3
-
   roles:
     - configure-server
