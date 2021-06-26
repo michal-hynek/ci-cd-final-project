@@ -286,9 +286,6 @@ jobs:
       - run:
           name: Install Ansible
           command: apk add --update ansible
-      # TODO: remove this step
-      - run:
-          command: echo "54.218.81.179" >> .circleci/ansible/inventory.txt
       - run:
           name: zip dist files
           command: cd /home/circleci/project/backend/dist && tar -czf /root/project/backend.tgz *
@@ -306,12 +303,12 @@ jobs:
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
             unzip awscliv2.zip && \
             ./aws/install
-      #- revert-migrations:
-      #    id: "migrations-${CIRCLE_WORKFLOW_ID}"
-      #- destroy-environment:
-      #    id: "udapeople-backend-${CIRCLE_WORKFLOW_ID}"
-      #- destroy-environment:
-      #    id: "udapeople-frontend-${CIRCLE_WORKFLOW_ID}"
+      - revert-migrations:
+          id: "migrations-${CIRCLE_WORKFLOW_ID}"
+      - destroy-environment:
+          id: "udapeople-backend-${CIRCLE_WORKFLOW_ID}"
+      - destroy-environment:
+          id: "udapeople-frontend-${CIRCLE_WORKFLOW_ID}"
 
   smoke-test:
     <<: *lightweight-image
@@ -370,35 +367,32 @@ jobs:
 workflows:
   default:
     jobs:
-      #- build-frontend
+      - build-frontend
       - build-backend
-      #- test-frontend:
-      #    requires: [build-frontend]
-      #- test-backend:
-      #    requires: [build-backend]
-      #- scan-backend:
-      #    requires: [build-backend]
-      #- scan-frontend:
-      #    requires: [build-frontend]
-      #- deploy-infrastructure
-          #requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-          #requires: [build-frontend, build-backend]
-      #    filters:
-      #      branches:
-      #        only: [final-project]
-      #- configure-infrastructure:
-      #    requires: [deploy-infrastructure]
-      #- run-migrations:
-      #    requires: [configure-infrastructure]
-      #- deploy-frontend:
-          #requires: [run-migrations]
-      - deploy-backend:
-      #    requires: [run-migrations]
-      #    requires: [configure-infrastructure]
+      - test-frontend:
+          requires: [build-frontend]
+      - test-backend:
           requires: [build-backend]
-      #- smoke-test:
-      #    requires: [deploy-backend, deploy-frontend]
-      #- cloudfront-update:
-      #    requires: [smoke-test]
-      #- cleanup:
-      #    requires: [cloudfront-update]
+      - scan-backend:
+          requires: [build-backend]
+      - scan-frontend:
+          requires: [build-frontend]
+      - deploy-infrastructure:
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+          filters:
+            branches:
+              only: [final-project]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
+      - run-migrations:
+          requires: [configure-infrastructure]
+      - deploy-frontend:
+          requires: [run-migrations]
+      - deploy-backend:
+          requires: [run-migrations]
+      - smoke-test:
+          requires: [deploy-backend, deploy-frontend]
+      - cloudfront-update:
+          requires: [smoke-test]
+      - cleanup:
+          requires: [cloudfront-update]
