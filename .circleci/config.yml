@@ -174,7 +174,13 @@ jobs:
       - checkout
       - run:
           name: Install awscli
-          command: pip install awscliv2 --upgrade && ln -s $(which awscliv2) /usr/bin/aws
+          command: |
+            apk update && \
+            apk --no-cache add curl && \
+            apk --no-cache add unzip \
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
+            unzip awscliv2.zip && \
+            ./aws/install
       - run:
           name: Install dependencies for attach_workspace
           command: apk add --update tar gzip
