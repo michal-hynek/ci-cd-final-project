@@ -291,7 +291,7 @@ jobs:
           command: echo "54.218.81.179" >> .circleci/ansible/inventory.txt
       - run:
           name: zip dist files
-          command: ls backend && cd backend/dist && tar -czf ../../backend.tgz *
+          command: pwd && ls backend/dist && tar -czf ../../backend.tgz *
       - run:
           name: Deploy backend
           command: |
