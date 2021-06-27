@@ -41,7 +41,8 @@ commands:
           name: Revert migrations
           when: on_fail
           command: |
-            SUCCESS=$(curl -sH "token: ${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/migration_<< parameters.id >> | grep -c "has been executed successfully")
+            echo 'hello'
+            SUCCESS=$(curl -sH "token: ${CIRCLE_WORKFLOW_ID}" --request GET "https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}" | grep -c "has been executed successfully")
             echo $SUCCESS
             if(( $SUCCESS==0 ));
             then
