@@ -43,8 +43,6 @@ commands:
           command: |
             SUCCESS=$(curl -sH "token: ${CIRCLE_WORKFLOW_ID}" --request GET "https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}" | grep -c "has been executed successfully")
             echo $SUCCESS
-            #SUCCESS=$(curl -sH "token: ${CIRCLE_WORKFLOW_ID}" --request GET "https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}" | grep -c "has been executed successfully")
-            #echo $SUCCESS
             #if(( $SUCCESS==1 ));
             #then
             #  ls .
@@ -52,7 +50,6 @@ commands:
             #  npm install
             #  npm run migrations:revert
             #fi
-            #return 0
             
 jobs:
   build-frontend:
