@@ -324,7 +324,7 @@ jobs:
               return 1
             fi
       - revert-migrations
-      - destroy-environments
+      #- destroy-environments
 
   cloudfront-update:
     <<: *aws-cli-image
