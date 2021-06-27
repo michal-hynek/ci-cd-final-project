@@ -302,6 +302,8 @@ jobs:
             apk add grep
             apk add gzip
             apk add ansible
+            apk add node 
+            apk add npm
             pip3 install awscli
       - attach_workspace:
           at: .
