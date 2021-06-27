@@ -42,6 +42,7 @@ commands:
           when: on_fail
           command: |
             export SUCCESS=$(curl -sH "token: ${CIRCLE_WORKFLOW_ID}" --request GET "https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}" | grep -c "has been executed successfully")
+            echo $SUCCESS
             #if(( $SUCCESS==1 ));
             #then
             #  ls .
