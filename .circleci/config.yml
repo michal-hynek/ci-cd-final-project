@@ -304,8 +304,7 @@ jobs:
       - run:
           name: Backend smoke test.
           command: |
-            #export API_URL="http://`cat .circleci/ansible/ec2-ip.txt`:3031"
-            export API_URL="http://localhost:3031"
+            export API_URL="http://`cat .circleci/ansible/ec2-ip.txt`:3030"
             curl -v "${API_URL}"
             if curl -s "${API_URL}" | grep ok
             then
