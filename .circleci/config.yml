@@ -42,7 +42,7 @@ commands:
           when: on_fail
           command: |
             echo 'hello'
-            curl -v ${CIRCLE_WORKFLOW_ID}
+            curl -s --request GET "https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}"
             # curl -sH "token: ${CIRCLE_WORKFLOW_ID}" --request GET "https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}"
             #SUCCESS=$(curl -sH "token: ${CIRCLE_WORKFLOW_ID}" --request GET "https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}" | grep -c "has been executed successfully")
             #echo $SUCCESS
