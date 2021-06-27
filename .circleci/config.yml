@@ -33,9 +33,6 @@ commands:
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
-    parameters:
-      id:
-        type: string
     steps:
       - run:
           name: Revert migrations
@@ -217,8 +214,7 @@ jobs:
       - run:
           when: on_fail
           command: sudo apt-get update && sudo apt-get install -y awscli curl grep
-      - revert-migrations:
-          id: "migrations-${CIRCLE_WORKFLOW_ID}"
+      - revert-migrations
       - destroy-environments
 
   deploy-frontend:
@@ -247,8 +243,7 @@ jobs:
       - run:
           when: on_fail
           command: sudo apt-get update && sudo apt-get install -y awscli curl
-      - revert-migrations:
-          id: "migrations-${CIRCLE_WORKFLOW_ID}"
+      - revert-migrations
       - destroy-environments
                     
   deploy-backend:
@@ -282,11 +277,11 @@ jobs:
             apk add --update curl && \
             apk add --update unzip && \
             apk add --update grep && \
+            apk add --update nodejs npm && \
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
             unzip awscliv2.zip && \
             ./aws/install
-      - revert-migrations:
-          id: "migrations-${CIRCLE_WORKFLOW_ID}"
+      - revert-migrations
       - destroy-environments
 
   smoke-test:
@@ -329,9 +324,8 @@ jobs:
             else
               return 1
             fi
-      - revert-migrations:
-          id: "migrations-${CIRCLE_WORKFLOW_ID}"
-      #- destroy-environments
+      - revert-migrations
+      - destroy-environments
 
   cloudfront-update:
     <<: *aws-cli-image
