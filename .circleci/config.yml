@@ -153,7 +153,8 @@ jobs:
             aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID}" \
-              --output text | tee .circleci/ansible/inventory.txt .circleci/ansible/ec2-ip.txt
+              --output text > .circleci/ansible/ec2-ip.txt
+            cat .circleci/ansible/ec2-ip.txt >> .circleci/ansible/inventory.txt
       - run:
           name: Install dependencies for persist_to_workspace
           command: yum -y install tar gzip
@@ -324,7 +325,7 @@ jobs:
               return 1
             fi
       - revert-migrations
-      #- destroy-environments
+      - destroy-environments
 
   cloudfront-update:
     <<: *aws-cli-image
