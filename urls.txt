@@ -1,0 +1,5 @@
+Github Repository: https://github.com/michal-hynek/ci-cd-final-project
+S3 Bucket: http://udapeople-391394e3-2f60-4063-b1e7-d7c93987da9d.s3-website-us-west-2.amazonaws.com
+Cloudfront Distribution: d2snt1kk51xc3d.cloudfront.net
+EC2 Backend: ec2-18-236-139-185.us-west-2.compute.amazonaws.com
+Prometheus Server: ec2-54-70-90-85.us-west-2.compute.amazonaws.com
